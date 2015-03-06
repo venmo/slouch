@@ -96,21 +96,41 @@ class Bot(object):
     def __init__(self, slack_token, config):
         """
         Do not override this to perform implementation-specific setup;
-        use :func:`.prepare_bot` instead.
+        use :func:`prepare_bot` instead.
 
-        No IO will be done until :func:`.run_forever` is called (unless :func:`.prepare_bot`
+        No IO will be done until :func:`run_forever` is called (unless :func:`prepare_bot`
         is overridden to perform some).
 
         :param slack_token: a Slack api token.
         :param config: an arbitrary dictionary for implementation-specific configuration.
           The same object is stored as the `config` attribute and passed to prepare methods.
         """
+        #: the same config dictionary passed to init.
         self.config = config
         self._current_message_id = 0
+
+        #: a Logger (``logging.getLogger(__name__)``).
         self.log = logging.getLogger(__name__)
 
         # This doesn't perform IO.
+        #: a `Slacker <https://github.com/os/slacker>`__ instance created with `slack_token`.
         self.slack = Slacker(slack_token)
+
+        #: the bot's Slack id.
+        #: Not available until :func:`prepare_connection`.
+        self.id = None
+
+        #: the bot's Slack name.
+        #: Not available until :func:`prepare_connection`.
+        self.name = None
+
+        #: the bot's Slack mention, equal to ``<@%s> % self.id`` .
+        #: Not available until :func:`prepare_connection`.
+        self.my_mention = None
+
+        #: a `WebSocketApp <https://github.com/liris/websocket-client>`__ instance.
+        #: Not available until :func:`prepare_connection`.
+        self.ws = None
 
         self.prepare_bot(self.config)
 
@@ -118,14 +138,7 @@ class Bot(object):
         """
         Override to perform implementation-specific setup.
 
-        This is called once by :func:`.__init__` and is not called on connection restarts.
-
-        These attributes are not yet available, but will be in :func:`.prepare_connection`:
-
-          * self.id
-          * self.name
-          * self.my_mention
-          * self.ws
+        This is called once by :func:`__init__` and is not called on connection restarts.
         """
         pass
 
