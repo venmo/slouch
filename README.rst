@@ -29,14 +29,10 @@ Here's an example bot built with Slouch::
         return "<@%s> %s" % (sender_slack_id, response)
 
 
-Implementation overview:
-
-    * communication with Slack uses the `Real Time Messaging api <https://api.slack.com/rtm>`__
-    * usage docstrings use `docopt <https://github.com/docopt/docopt>`__
+For more details, check out the docs at https://slouch.readthedocs.org.
 
 
 TODO:
 
-    * docs
     * full example file, with how to run, help builtin, etc
     * testing (include things to make integration testing easy?)
