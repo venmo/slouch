@@ -3,7 +3,9 @@ slouch
 
 Slouch is a lightweight Python framework for building cli-inspired Slack bots.
 
-Here's an example bot built with Slouch::
+Here's an example bot built with Slouch:
+
+.. code-block:: python
 
     from slouch import Bot, help
 
