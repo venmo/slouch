@@ -31,10 +31,4 @@ Here's an example bot built with Slouch:
         return "<@%s> %s" % (sender_slack_id, response)
 
 
-For more details, check out the docs at https://slouch.readthedocs.org.
-
-
-TODO:
-
-    * full example file, with how to run, help builtin, etc
-    * testing (include things to make integration testing easy?)
+For more details, check out the docs at https://slouch.readthedocs.org or see a `full example bot <https://github.com/venmo/slouch/blob/master/example.py>`__.

@@ -29,4 +29,4 @@ Here's an example Slack bot built with slouch:
         return "<@%s> %s" % (sender_slack_id, response)
 
 
-For more details, see the :ref:`api reference <api>`.
+For more details, see the :ref:`api reference <api>` or the `full example bot <https://github.com/venmo/slouch/blob/master/example.py>`__.
