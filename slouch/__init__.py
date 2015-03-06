@@ -9,6 +9,8 @@ from docopt import docopt, DocoptExit
 from slacker import Slacker
 import websocket
 
+from _version import __version__
+
 
 def help(opts, bot, _):
     """Usage: help [<command>]
@@ -41,6 +43,15 @@ class _CommandMeta(type):
 
 
 class Bot(object):
+    """
+    A Bot connects to Slack using the `RTM API <https://api.slack.com/rtm>`__
+    and responds to public messages that are directed to it with username-
+    or at-mentions.
+
+    Manage the Bot's channels in Slack itself with the `/join` command.
+    A Bot can be in multiple Slack channels (though state is not isolated by channel).
+    """
+
     __metaclass__ = _CommandMeta
 
     @classmethod
@@ -84,23 +95,15 @@ class Bot(object):
 
     def __init__(self, slack_token, config):
         """
-        A Bot connects to Slack using the `RTM API <https://api.slack.com/rtm>`__
-        and makes requests to the Github api as needed.
-
         Do not override this to perform implementation-specific setup;
         use :func:`.prepare_bot` instead.
 
         No IO will be done until :func:`.run_forever` is called (unless :func:`.prepare_bot`
         is overridden to perform some).
 
-        Manage the Bot's channels in Slack itself with the `/join` command.
-        A Bot can be in multiple Slack channels (though state is not isolated by channel).
-
-        :param gh_token: a Github api token.
         :param slack_token: a Slack api token.
-        :param mapping_repo: url to a github repo holding the slack mapping.
-        :param mapping_path: path to the config file inside *mapping_repo*.
-        :param gh_url: (optional) url to a github installation (defaults to public github).
+        :param config: an arbitrary dictionary for implementation-specific configuration.
+          The same object is stored as the `config` attribute and passed to prepare methods.
         """
         self.config = config
         self._current_message_id = 0
