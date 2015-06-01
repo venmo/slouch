@@ -36,7 +36,7 @@ setup(
     long_description=readme,
     author='Simon Weber',
     author_email='simon@venmo.com',
-    url='https://github.com/venmo/nose-detecthttp',
+    url='https://github.com/venmo/slouch',
     packages=['slouch'],
     include_package_data=True,
     install_requires=requires,
