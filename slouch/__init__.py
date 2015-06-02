@@ -1,4 +1,5 @@
 import functools
+import inspect
 import json
 import logging
 import pprint
@@ -10,6 +11,25 @@ from slacker import Slacker
 import websocket
 
 from _version import __version__
+
+
+def _dual_decorator(func):
+    """This is a decorator that converts a paramaterized decorator for
+    no-param use.
+
+    source: http://stackoverflow.com/questions/3888158
+    """
+
+    @functools.wraps(func)
+    def inner(*args, **kwargs):
+        if ((len(args) == 1 and not kwargs and callable(args[0])
+             and not (type(args[0]) == type and issubclass(args[0], BaseException)))):
+            return func()(args[0])
+        elif len(args) == 2 and inspect.isclass(args[0]) and callable(args[1]):
+            return func(args[0], **kwargs)(args[1])
+        else:
+            return func(*args, **kwargs)
+    return inner
 
 
 def help(opts, bot, _):
@@ -55,7 +75,8 @@ class Bot(object):
     __metaclass__ = _CommandMeta
 
     @classmethod
-    def command(cls, func):
+    @_dual_decorator
+    def command(cls, name=None):
         """
         A decorator to convert a function to a command.
 
@@ -65,22 +86,30 @@ class Bot(object):
           * opts: the docopt-parsd
           * bot: the Bot instance handling the command (eg for storing state between commands)
           * event: the Slack event that triggered the command (eg for finding the message's sender)
+
+        Additional options may be passed in as keyword arguments:
+
+          * name: the string used to execute the command (no spaces allowed)
         """
         # adapted from https://github.com/docopt/docopt/blob/master/examples/interactive_example.py
-        @functools.wraps(func)
-        def _cmd_wrapper(rest, *args, **kwargs):
-            try:
-                usage = _cmd_wrapper.__doc__.partition('\n')[0]
-                opts = docopt(usage, rest)
-            except (SystemExit, DocoptExit) as e:
-                # opts did not match
-                return str(e)
 
-            return func(opts, *args, **kwargs)
+        def decorator(func):
 
-        cls.commands[func.__name__] = _cmd_wrapper
+            @functools.wraps(func)
+            def _cmd_wrapper(rest, *args, **kwargs):
+                try:
+                    usage = _cmd_wrapper.__doc__.partition('\n')[0]
+                    opts = docopt(usage, rest)
+                except (SystemExit, DocoptExit) as e:
+                    # opts did not match
+                    return str(e)
 
-        return _cmd_wrapper
+                return func(opts, *args, **kwargs)
+
+            cls.commands[name or func.__name__] = _cmd_wrapper
+
+            return _cmd_wrapper
+        return decorator
 
     @classmethod
     def help_text(cls):
