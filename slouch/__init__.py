@@ -80,7 +80,7 @@ class Bot(object):
         """
         A decorator to convert a function to a command.
 
-        Command functions should have a docopt-usage string in their docstring
+        Command functions must have a docopt-usage string in their docstring
         and receive three arguments:
 
           * opts: the docopt-parsd
@@ -90,6 +90,13 @@ class Bot(object):
         Additional options may be passed in as keyword arguments:
 
           * name: the string used to execute the command (no spaces allowed)
+
+        They must return a string of response text, or None to send no response.
+
+        Response text must be formatted as per https://api.slack.com/docs/message-formatting.
+        Note that this does not allow sending links with custom text.
+        To do that, return None to send no response, then call https://api.slack.com/methods/chat.postMessage
+        through self.slacker.
         """
         # adapted from https://github.com/docopt/docopt/blob/master/examples/interactive_example.py
 
@@ -263,7 +270,8 @@ class Bot(object):
                     tb_entries = traceback.extract_tb(tb, 3)
                     res += ''.join(traceback.format_list(tb_entries[2:]))
 
-                self._send_message(event['channel'], res)
+                if res is not None:
+                    self._send_message(event['channel'], res)
             else:
                 self._send_message(event['channel'], "Unrecognized command.\n%s" % self.help_text())
 
