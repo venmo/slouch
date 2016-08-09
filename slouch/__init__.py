@@ -10,7 +10,7 @@ from docopt import docopt, DocoptExit
 from slacker import Slacker
 import websocket
 
-from _version import __version__
+from _version import __version__  # noqa
 
 
 def _dual_decorator(func):
@@ -91,12 +91,16 @@ class Bot(object):
 
           * name: the string used to execute the command (no spaces allowed)
 
-        They must return a string of response text, or None to send no response.
+        They must return one of three things:
 
-        Response text must be formatted as per https://api.slack.com/docs/message-formatting.
-        Note that this does not allow sending links with custom text.
-        To do that, return None to send no response, then call https://api.slack.com/methods/chat.postMessage
-        through self.slacker.
+          * a string of response text. It will be sent via the RTM api to the channel where
+            the bot received the message. Slack will format it as per https://api.slack.com/docs/message-formatting.
+          * None, to send no response.
+          * a dictionary of kwargs representing a message to send via https://api.slack.com/methods/chat.postMessage.
+            Use this to send more complex messages, such as those with custom link text or DMs.
+            For example, to respond with a DM containing custom link text, return
+            `{'text': '<http://example.com|my text>', 'channel': event['user'], 'username': bot.name}`.
+            Note that this api has higher latency than the RTM api; use it only when necessary.
         """
         # adapted from https://github.com/docopt/docopt/blob/master/examples/interactive_example.py
 
@@ -221,8 +225,26 @@ class Bot(object):
 
         return False
 
-    def _send_message(self, channel_id, text):
-        """Send a Slack message to a channel.
+    def _handle_command_response(self, event, res):
+        """Either send a message (choosing between rtm and postMessage) or ignore the response.
+
+        :param event: a slacker event dict
+        :param res: a string, a dict, or None.
+          See the command docstring for what these represent.
+        """
+
+        response_handler = None
+
+        if isinstance(res, basestring):
+            response_handler = functools.partial(self._send_rtm_message, event['channel'])
+        elif isinstance(res, dict):
+            response_handler = self._send_api_message
+
+        if response_handler is not None:
+            response_handler(res)
+
+    def _send_rtm_message(self, channel_id, text):
+        """Send a Slack message to a channel over RTM.
 
         :param channel_id: a slack channel id.
         :param text: a slack message. Serverside formatting is done
@@ -237,8 +259,18 @@ class Bot(object):
             'text': text,
         }
         self.ws.send(json.dumps(message))
+        self.log.debug("sent rtm message %r", message)
 
         self._current_message_id += 1
+
+    def _send_api_message(self, message):
+        """Send a Slack message via the chat.postMessage api.
+
+        :param message: a dict of kwargs to be passed to slacker.
+        """
+
+        self.slack.chat.post_message(**message)
+        self.log.debug("sent api message %r", message)
 
     # Websocket callbacks.
     def _on_message(self, ws, raw_event):
@@ -269,11 +301,10 @@ class Bot(object):
                     res = ''.join(traceback.format_exception_only(t, v))
                     tb_entries = traceback.extract_tb(tb, 3)
                     res += ''.join(traceback.format_list(tb_entries[2:]))
-
-                if res is not None:
-                    self._send_message(event['channel'], res)
             else:
-                self._send_message(event['channel'], "Unrecognized command.\n%s" % self.help_text())
+                res = "Unrecognized command.\n%s" % self.help_text()
+
+            self._handle_command_response(event, res)
 
         except Exception as e:
             # websocket-client swallows exceptions in callbacks
