@@ -1,0 +1,8 @@
+language: python
+python:
+- '2.7'
+install:
+- python setup.py sdist --formats=zip -k
+- find ./dist -iname "*.zip" -print0 | xargs -0 pip install
+- make init
+script: make test
