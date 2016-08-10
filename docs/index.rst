@@ -41,7 +41,6 @@ And here's a test for that bot:
 
         def test_ping(self):
             response = self.send_message('pingme', user='123')
-
             self.assertEqual(response, '<@123> ')
 
 For more details, see the :ref:`api reference <api>` or the `full example bot <https://github.com/venmo/slouch/blob/master/example.py>`__.
