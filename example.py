@@ -20,6 +20,9 @@ import sys
 from docopt import docopt
 from slouch import Bot, help
 
+# You might also be interested in this bot's tests:
+# https://github.com/venmo/slouch/blob/master/tests/test_example_bot.py
+
 
 class TimerBot(Bot):
     def prepare_bot(self, config):
