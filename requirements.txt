@@ -1,0 +1,13 @@
+contextdecorator==0.10.0
+docopt-unicode==0.6.1
+funcsigs==1.0.2
+libfaketime==0.4.2
+mock==2.0.0
+pbr==1.10.0
+py==1.4.31
+pytest==2.9.2
+python-dateutil==2.5.3
+requests==2.11.0
+six==1.10.0
+slacker==0.9.24
+websocket-client==0.37.0
