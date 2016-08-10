@@ -30,6 +30,22 @@ Here's an example bot built with Slouch:
 
         return "<@%s> %s" % (sender_slack_id, response)
 
+And here's a test for that bot:
+
+.. code-block:: python
+
+    from slouch import testing
+    # Note that mock must also be installed to use CommandTestCase.
+
+    class TestPingBot(CommandTestCase):
+
+        bot_class = PingBot
+
+        def test_ping(self):
+            response = self.send_message('pingme', user='123')
+            self.assertEqual(response, '<@123> ')
+
+
 
 Install with ``pip install slouch``.
 
