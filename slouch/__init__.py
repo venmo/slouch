@@ -81,10 +81,12 @@ class Bot(object):
         """
         A decorator to convert a function to a command.
 
-        Command functions must have a docopt-usage string in their docstring
-        and receive three arguments:
+        A command's docstring must be a docopt usage string.
+        See docopt.org for what it supports.
 
-          * opts: the docopt-parsd
+        Commands receive three arguments:
+
+          * opts: a dictionary output by docopt
           * bot: the Bot instance handling the command (eg for storing state between commands)
           * event: the Slack event that triggered the command (eg for finding the message's sender)
 
