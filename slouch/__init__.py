@@ -10,7 +10,8 @@ from docopt import docopt, DocoptExit
 from slacker import Slacker
 import websocket
 
-from _version import __version__  # noqa
+from . import testing  # noqa
+from ._version import __version__  # noqa
 
 
 def _dual_decorator(func):
