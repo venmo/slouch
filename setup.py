@@ -7,6 +7,7 @@ except ImportError:
 
 requires = [
     'docopt-unicode == 0.6.1',  # https://github.com/docopt/docopt/pull/220
+    'mock',
     'requests',
     'slacker >= 0.5.1',
     'websocket-client',

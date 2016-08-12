@@ -35,7 +35,6 @@ And here's a test for that bot:
 .. code-block:: python
 
     from slouch import testing
-    # Note that mock must also be installed to use CommandTestCase.
 
     class TestPingBot(CommandTestCase):
 
