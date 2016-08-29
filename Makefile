@@ -10,3 +10,4 @@ release:
 	python setup.py sdist upload
 	git tag -a $(VERSION)
 	git push origin $(VERSION)
+	git push
