@@ -234,15 +234,6 @@ class Bot(object):
 
         return None
 
-    def _sent_to_me(self, identifier, message):
-        """Return True if this message is addressed to the bot.
-
-        :param identifier: the prefix this bot was called with.
-        :param message: a message dict from the slack api.
-        """
-        text = message['text']
-        return text.startswith(identifier)
-
     def _handle_command_response(self, res, event):
         """Either send a message (choosing between rtm and postMessage) or ignore the response.
 
@@ -301,7 +292,7 @@ class Bot(object):
                 return
 
             identifier = self._bot_identifier(event)
-            if not self._sent_to_me(identifier, event):
+            if not identifier:
                 return
 
             body = event['text'].partition(identifier)[2].strip()
