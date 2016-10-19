@@ -212,21 +212,36 @@ class Bot(object):
         self.prepare_connection(self.config)
         self.ws.run_forever()
 
-    def _sent_to_me(self, message):
-        """Return True if this message is addressed to the bot.
+    def _bot_identifier(self, message):
+        """Return the identifier used to address this bot in this message.
+        If one is not found, return None.
 
         :param message: a message dict from the slack api.
         """
 
         text = message['text']
-        my_prefixes = ["%s:" % item
-                       for item in [self.name, self.my_mention]]
 
-        if any(text.startswith(prefix) for prefix in my_prefixes):
-            self.log.debug("sent to me:\n%s", pprint.pformat(message))
-            return True
+        formatters = [
+            lambda identifier: "%s " % identifier,
+            lambda identifier: "%s:" % identifier,
+        ]
+        my_identifiers = [formatter(identifier) for identifier in [self.name, self.my_mention] for formatter in formatters]
 
-        return False
+        for identifier in my_identifiers:
+            if text.startswith(identifier):
+                self.log.debug("sent to me:\n%s", pprint.pformat(message))
+                return identifier
+
+        return None
+
+    def _sent_to_me(self, identifier, message):
+        """Return True if this message is addressed to the bot.
+
+        :param identifier: the prefix this bot was called with.
+        :param message: a message dict from the slack api.
+        """
+        text = message['text']
+        return text.startswith(identifier)
 
     def _handle_command_response(self, res, event):
         """Either send a message (choosing between rtm and postMessage) or ignore the response.
@@ -285,10 +300,11 @@ class Bot(object):
                 # These are mostly changed messages, which we don't respond to right now.
                 return
 
-            if not self._sent_to_me(event):
+            identifier = self._bot_identifier(event)
+            if not self._sent_to_me(identifier, event):
                 return
 
-            body = event['text'].partition(':')[2].strip()
+            body = event['text'].partition(identifier)[2].strip()
             cmd, _, rest = body.partition(' ')
 
             if cmd in self.commands:
