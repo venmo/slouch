@@ -33,7 +33,7 @@ class CommandTestCase(TestCase):
     def tearDown(self):
         self.slack_patcher.stop()
 
-    def send_message(self, command, **event):
+    def send_message(self, command, message_delimiter=':', **event):
         """Return the bot's response to a given command.
 
         :param command: the message to the bot.
@@ -44,7 +44,7 @@ class CommandTestCase(TestCase):
 
         _event = {
             'type': 'message',
-            'text': "%s: %s" % (self.bot.name, command),
+            'text': "%s%s%s" % (self.bot.name, message_delimiter, command),
             'channel': None,
         }
         _event.update(event)
