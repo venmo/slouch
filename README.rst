@@ -47,5 +47,6 @@ And here's a test for that bot:
 
 
 Install with ``pip install slouch``.
+Run tests with ``py.test tests``.
 
 For more details, check out the docs at https://slouch.readthedocs.io or see a `full example bot <https://github.com/venmo/slouch/blob/master/example.py>`__.
