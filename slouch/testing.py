@@ -47,6 +47,9 @@ class CommandTestCase(TestCase):
             'text': "%s%s%s" % (self.bot.name, message_delimiter, command),
             'channel': None,
         }
+
+        self.assertTrue(_event['text'].startswith("%s%s" % (self.bot.name, message_delimiter)))
+
         _event.update(event)
 
         self.bot._on_message(self.ws, json.dumps(_event))

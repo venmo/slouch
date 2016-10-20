@@ -11,5 +11,5 @@ class TestSendMessage(context.slouch.testing.CommandTestCase):
         self.assertIn('Start a timer.', res)
 
     def test_message_space_delimiter(self):
-        res = self.send_message('help start', delimiter=' ')
+        res = self.send_message('help start', message_delimiter=' ')
         self.assertIn('Start a timer.', res)
