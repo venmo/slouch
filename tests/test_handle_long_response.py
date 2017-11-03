@@ -3,7 +3,11 @@ import context
 class TestHandleLongResponse(context.slouch.testing.CommandTestCase):
     bot_class = context.TimerBot
     config = {'start_fmt': '{:%Y}', 'stop_fmt': '{.days}'}
-    normal_text = "@genericmention: this is generic mention message contains a URL <http://foo.com/>\n@genericmention: this generic mention message contains a :fast_parrot: and :nyancat_big:\n"
+    normal_text = (
+                "@genericmention: this is generic mention message contains a URL <http://foo.com/>"
+                "\n@genericmention: this generic mention message contains a :fast_parrot: and :nyancat_big:"
+                "\n"
+            )
     over_limit_text = normal_text * 50 # 8550 chars
 
 

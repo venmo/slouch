@@ -13,8 +13,8 @@ import websocket
 from . import testing  # noqa
 from ._version import __version__  # noqa
 
-# Message server will disconnect any clients that sends
-# a message longer than than 16kbs or 4000 characters
+# Message server will reject a message longer than 16kbs 
+# or 4000 characters. See https://api.slack.com/rtm#limits
 SLACK_MESSAGE_LIMIT = 4000
 
 def _dual_decorator(func):
