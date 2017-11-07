@@ -1,7 +1,7 @@
 contextdecorator==0.10.0
 docopt-unicode==0.6.1
 funcsigs==1.0.2
-libfaketime==0.4.2
+libfaketime==0.5.0
 mock==2.0.0
 pbr==1.10.0
 py==1.4.31

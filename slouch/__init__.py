@@ -13,6 +13,9 @@ import websocket
 from . import testing  # noqa
 from ._version import __version__  # noqa
 
+# Message server will reject a message longer than 16kbs 
+# or 4000 characters. See https://api.slack.com/rtm#limits
+SLACK_MESSAGE_LIMIT = 4000
 
 def _dual_decorator(func):
     """This is a decorator that converts a paramaterized decorator for
@@ -252,6 +255,51 @@ class Bot(object):
         if response_handler is not None:
             response_handler(res)
 
+    def _handle_long_response(self, res):
+        """Splits messages that are too long into multiple events
+        :param res: a slack response string or dict
+        """
+
+        is_rtm_message = isinstance(res, basestring)
+        is_api_message = isinstance(res, dict)
+
+        if is_rtm_message:
+            text = res
+        elif is_api_message:
+            text = res['text']
+
+        message_length = len(text)
+
+        if message_length <= SLACK_MESSAGE_LIMIT:
+            return [res]
+
+        remaining_str = text
+        responses = []
+
+        while remaining_str:
+            less_than_limit = len(remaining_str) < SLACK_MESSAGE_LIMIT
+
+            if less_than_limit:
+                last_line_break = None
+            else:
+                last_line_break = remaining_str[:SLACK_MESSAGE_LIMIT].rfind('\n')
+
+            if is_rtm_message:
+                responses.append(remaining_str[:last_line_break])
+            elif is_api_message:
+                template = res.copy()
+                template['text'] = remaining_str[:last_line_break]
+                responses.append(template)
+
+            if less_than_limit:
+                remaining_str = None
+            else:
+                remaining_str = remaining_str[last_line_break:]
+
+        self.log.debug("_handle_long_response: splitting long response %s, returns: \n %s",
+                pprint.pformat(res), pprint.pformat(responses))
+        return responses
+
     def _send_rtm_message(self, channel_id, text):
         """Send a Slack message to a channel over RTM.
 
@@ -268,7 +316,6 @@ class Bot(object):
             'text': text,
         }
         self.ws.send(json.dumps(message))
-
         self._current_message_id += 1
 
     def _send_api_message(self, message):
@@ -314,7 +361,9 @@ class Bot(object):
                 res = "Unrecognized command.\n%s" % self.help_text()
 
             self.log.debug("received command response %r", res)
-            self._handle_command_response(res, event)
+            responses = self._handle_long_response(res)
+            for r in responses:
+                self._handle_command_response(r, event)
 
         except Exception as e:
             # websocket-client swallows exceptions in callbacks
