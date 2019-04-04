@@ -1,6 +1,8 @@
 slouch
 ======
 
+*[not actively supported outside of internal Venmo usage]*
+
 Slouch is a lightweight Python framework for building cli-inspired Slack bots.
 
 Here's an example bot built with Slouch:
