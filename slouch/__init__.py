@@ -199,9 +199,7 @@ class Bot(object):
     def run_forever(self):
         """Run the bot, blocking forever."""
         res = self.slack.rtm.start()
-        self.log.info("current channels: %s",
-                      ','.join(c['name'] for c in res.body['channels']
-                               if c['is_member']))
+        # Quick fix for deprecated response (See https://api.slack.com/changelog/2021-10-rtm-start-to-stop#how)
         self.id = res.body['self']['id']
         self.name = res.body['self']['name']
         self.my_mention = "<@%s>" % self.id
