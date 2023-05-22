@@ -7,7 +7,7 @@ pbr==1.10.0
 py==1.4.31
 pytest==2.9.2
 python-dateutil==2.5.3
-requests==2.11.0
+requests==2.31.0
 six==1.10.0
 slacker==0.9.24
 websocket-client==0.37.0
